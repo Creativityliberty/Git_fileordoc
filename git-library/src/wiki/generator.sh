@@ -89,26 +89,31 @@ EOF
         local project_name=$(basename "$target")
         local session_vault="$VAULT_DIR/$project_name/$timestamp"
         
+        # Noms des piliers (selon demande utilisateur)
+        local bridge_dir="$session_vault/1. Pont - Code vers IA"
+        local surgeon_dir="$session_vault/2. Chirurgien - Analyse Chirurgicale"
+        local academy_dir="$session_vault/3. Elite Academy"
+        
         # Création des piliers
-        mkdir -p "$session_vault/bridge"   # Pont: Code -> IA
-        mkdir -p "$session_vault/surgeon"  # Chirurgien: Analyse Chirurgicale
-        mkdir -p "$session_vault/academy"  # Academy: Pédagogie
+        mkdir -p "$bridge_dir"
+        mkdir -p "$surgeon_dir"
+        mkdir -p "$academy_dir"
         
         # Déplacement/Copie des fichiers vers les bons piliers
-        cp "$wiki_file" "$session_vault/bridge/GEMINI.md"
-        [ -f "$json_path" ] && cp "$json_path" "$session_vault/surgeon/GEMINI.json"
+        cp "$wiki_file" "$bridge_dir/GEMINI.md"
+        [ -f "$json_path" ] && cp "$json_path" "$surgeon_dir/GEMINI.json"
         
         # Mise à jour de l'INDEX.md du Vault (Plus propre)
         local index_file="$VAULT_DIR/INDEX.md"
         [ ! -f "$index_file" ] && echo "# 🏛️ Intelligence Vault Index" > "$index_file"
         if ! grep -q "$project_name" "$index_file"; then
-            echo "- **$project_name** : [Dernière analyse](./$project_name/$timestamp/bridge/GEMINI.md)" >> "$index_file"
+            echo "- **$project_name** : [Dernière analyse](./$project_name/$timestamp/1.%20Pont%20-%20Code%20vers%20IA/GEMINI.md)" >> "$index_file"
         fi
 
         echo "🏛️ Session archivée dans le Vault (3 piliers) : $session_vault"
         
         # Export pour le moteur Academy
-        export CURRENT_ACADEMY_DIR="$session_vault/academy"
+        export CURRENT_ACADEMY_DIR="$academy_dir"
     fi
 
     echo "✅ Documentation générée : $wiki_file"

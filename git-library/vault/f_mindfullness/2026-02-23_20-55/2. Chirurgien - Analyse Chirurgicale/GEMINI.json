@@ -1,0 +1,12 @@
+{
+  "project": "f_mindfullness",
+  "type": "directory",
+  "generated_at": "2026-02-23 20:55:45",
+  "surgical_data": {
+    "symbols_count": 175,
+    "dependencies_count": 181
+  },
+  "academy": {
+    "status": "pending_api_key_verification"
+  }
+}
