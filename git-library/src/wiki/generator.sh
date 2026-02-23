@@ -24,7 +24,6 @@ generate_wiki_entry() {
         echo '```mermaid'
         echo "graph TD"
         if [ "$type" == "directory" ]; then
-            # Génération d'un diagramme simple basé sur les dossiers de premier niveau
             find "$target" -maxdepth 1 -type d | sed "s|^$target/||" | while read -r dir; do
                 if [[ "$dir" != "." && "$dir" != "$target" && "$dir" != "node_modules" && "$dir" != ".git" ]]; then
                     echo "    Root --> $dir"
@@ -36,19 +35,29 @@ generate_wiki_entry() {
         echo '```'
         echo ""
 
-        echo "## 🔍 Aperçu du Contenu"
-        if [ "$type" == "directory" ]; then
-            echo "Top 10 fichiers/dossiers :"
-            ls -R "$target" | head -n 12 | sed 's/^/    /'
+        echo "## 📂 Structure du Projet"
+        if command -v tree &> /dev/null; then
+            tree -L 3 "$target" -I "node_modules|.git" | sed 's/^/    /'
         else
-            echo "Fichier unique : $(basename "$target")"
-            head -n 20 "$target" | sed 's/^/    /'
+            find "$target" -maxdepth 3 -not -path '*/.*' -not -path '*node_modules*' | sed "s|^$target/||" | sed 's/^/    /'
         fi
         echo ""
 
+        # Section Academy si disponible
+        local project_name=$(basename "$target")
+        if [ -d "$VAULT_DIR/$project_name" ]; then
+            echo "## 🎓 Academy & Tutoriels"
+            find "$VAULT_DIR/$project_name" -name "ACADEMY.md" | sort -r | head -n 1 | while read -r academy_index; do
+                local rel_path=$(realpath --relative-to="$target" "$academy_index" 2>/dev/null || echo "$academy_index")
+                echo "Un parcours d'apprentissage est disponible pour ce projet."
+                echo "- [Voir l'Academy]($rel_path)"
+            done
+            echo ""
+        fi
+
         # Append surgical data if available
         if [ -n "${SURGICAL_SYMBOLS:-}" ]; then
-            echo -e "\n## 🩺 Symboles Chirurgicaux"
+            echo -e "## 🩺 Symboles Chirurgicaux (Classes & Fonctions)"
             echo -e "\`\`\`text\n$SURGICAL_SYMBOLS\n\`\`\`"
         fi
 

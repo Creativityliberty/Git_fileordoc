@@ -12,7 +12,7 @@ extract_symbols() {
     if [ -d "$target" ]; then
         grep -rE "class [a-zA-Z0-9_]+|def [a-zA-Z0-9_]+|function [a-zA-Z0-9_]+|func [a-zA-Z0-9_]+" "$target" \
             --exclude-dir=node_modules --exclude-dir=.git \
-            | head -n 20 | sed 's/^.*: //' | sort | uniq
+            | sed 's/^.*: //' | sort | uniq
     else
         grep -E "class [a-zA-Z0-9_]+|def [a-zA-Z0-9_]+|function [a-zA-Z0-9_]+|func [a-zA-Z0-9_]+" "$target" \
             | sed 's/^.*: //' | sort | uniq
@@ -28,7 +28,7 @@ map_dependencies() {
         # Cherche imports/requires
         grep -rE "import .* from|require\(.*\)" "$target" \
             --exclude-dir=node_modules --exclude-dir=.git \
-            | head -n 15 | sed 's/^.*: //' | sort | uniq
+            | sed 's/^.*: //' | sort | uniq
     fi
 }
 
