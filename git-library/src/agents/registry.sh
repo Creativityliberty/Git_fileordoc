@@ -14,6 +14,8 @@ identify_skills() {
     [ -f "$target_dir/requirements.txt" ] || [ -f "$target_dir/pyproject.toml" ] && identified_skills+=("Python")
     [ -f "$target_dir/bun.lockb" ] && identified_skills+=("Bun")
     [ -f "$target_dir/Cargo.toml" ] && identified_skills+=("Rust")
+    [ -f "$target_dir/Package.swift" ] && identified_skills+=("Swift")
+    [ -f "$target_dir/CMakeLists.txt" ] && identified_skills+=("C++")
 
     if [ ${#identified_skills[@]} -eq 0 ]; then
         echo "ℹ️ Aucune compétence spécifique détectée. Utilisation du Skill 'default'."
