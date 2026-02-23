@@ -58,9 +58,35 @@ generate_wiki_entry() {
 
     # Génération du GEMINI.json (AI-Native)
     local json_path="${target%/}/GEMINI.json"
+    local json_content="{\"project\": \"$(basename "$target")\", \"type\": \"$type\", \"skills\": \"${CURRENT_SKILLS:-None}\", \"symbols\": \"$(echo "$SURGICAL_SYMBOLS" | tr '\n' ' ')\", \"dependencies\": \"$(echo "$SURGICAL_DEPS" | tr '\n' ' ')\"}"
     if [ "$type" == "directory" ]; then
-        echo "{\"project\": \"$(basename "$target")\", \"type\": \"$type\", \"skills\": \"${CURRENT_SKILLS:-None}\", \"symbols\": \"$(echo "$SURGICAL_SYMBOLS" | tr '\n' ' ')\", \"dependencies\": \"$(echo "$SURGICAL_DEPS" | tr '\n' ' ')\"}" > "$json_path"
+        echo "$json_content" > "$json_path"
         echo "🤖 Fichier JSON généré : $json_path"
+    fi
+
+    # --- ARCHIVAGE DANS LE VAULT ---
+    if [ -n "${VAULT_DIR:-}" ]; then
+        local project_name=$(basename "$target")
+        local timestamp=$(date +'%Y-%m-%d_%H-%M')
+        local archive_dir="$VAULT_DIR/$project_name/$timestamp"
+        mkdir -p "$archive_dir"
+        
+        cp "$wiki_file" "$archive_dir/GEMINI.md"
+        [ -f "$json_path" ] && cp "$json_path" "$archive_dir/GEMINI.json"
+        
+        # Extraction du Mermaid en fichier séparé
+        sed -n '/```mermaid/,/```/p' "$wiki_file" > "$archive_dir/architecture.mmd"
+        
+        # Mise à jour de l'INDEX.md du Vault
+        local index_file="$VAULT_DIR/INDEX.md"
+        if [ ! -f "$index_file" ]; then
+            echo "# 🏛️ Intelligence Vault Index" > "$index_file"
+        fi
+        if ! grep -q "$project_name" "$index_file"; then
+            echo "- **$project_name** : [Dernière analyse](./$project_name/$timestamp/GEMINI.md)" >> "$index_file"
+        fi
+        
+        echo "🏛️ Archivé dans le Vault : $archive_dir"
     fi
 
     echo "✅ Documentation générée : $wiki_file"

@@ -8,9 +8,10 @@ CONFIG_DIR="$HOME/.gemini"
 SKILLS_DIR="$CONFIG_DIR/skills"
 LOG_FILE="$CONFIG_DIR/git-library.log"
 BASE_DIR="/d/Git_fileordoc/git-library" # Chemin absolu dans l'environnement
+VAULT_DIR="$BASE_DIR/vault"
 
 # Initialisation
-mkdir -p "$CONFIG_DIR/hooks" "$CONFIG_DIR/agents"
+mkdir -p "$CONFIG_DIR/hooks" "$CONFIG_DIR/agents" "$VAULT_DIR"
 touch "$LOG_FILE"
 
 # Log logic
