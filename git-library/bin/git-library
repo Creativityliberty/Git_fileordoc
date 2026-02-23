@@ -18,6 +18,7 @@ log() { echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"; }
 
 # Sourcing components
 # Note: On utilise des chemins relatifs à BASE_DIR ou absolus
+source "$BASE_DIR/config/settings.env" 2>/dev/null || log "⚠️ settings.env non trouvé."
 source "$BASE_DIR/src/policy/engine.sh"
 source "$BASE_DIR/src/core/downloader.sh"
 source "$BASE_DIR/src/agents/registry.sh"
