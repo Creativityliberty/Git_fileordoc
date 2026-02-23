@@ -65,13 +65,23 @@ generate_wiki_entry() {
         echo "Utilisez 'git-library chat $target' pour poser des questions sur ce code."
     } >> "$wiki_file"
 
-    # Génération du GEMINI.json (AI-Native)
+    # Génération du GEMINI.json (AI-Native) - Version robuste
     local json_path="${target%/}/GEMINI.json"
-    local json_content="{\"project\": \"$(basename "$target")\", \"type\": \"$type\", \"skills\": \"${CURRENT_SKILLS:-None}\", \"symbols\": \"$(echo "$SURGICAL_SYMBOLS" | tr '\n' ' ')\", \"dependencies\": \"$(echo "$SURGICAL_DEPS" | tr '\n' ' ')\"}"
-    if [ "$type" == "directory" ]; then
-        echo "$json_content" > "$json_path"
-        echo "🤖 Fichier JSON généré : $json_path"
-    fi
+    cat <<EOF > "$json_path"
+{
+  "project": "$(basename "$target")",
+  "type": "$type",
+  "generated_at": "$(date +'%Y-%m-%d %H:%M:%S')",
+  "surgical_data": {
+    "symbols_count": $(echo "$SURGICAL_SYMBOLS" | wc -l),
+    "dependencies_count": $(echo "$SURGICAL_DEPS" | wc -l)
+  },
+  "academy": {
+    "status": "pending_api_key_verification"
+  }
+}
+EOF
+    echo "🤖 Fichier JSON généré : $json_path"
 
     # --- ARCHIVAGE DANS LE VAULT ---
     if [ -n "${VAULT_DIR:-}" ]; then
