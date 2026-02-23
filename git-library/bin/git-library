@@ -1,0 +1,76 @@
+#!/bin/bash
+# git-library : Agentic Code Intelligence & Downloader
+set -euo pipefail
+
+# --- Configuration & Constantes ---
+VERSION="2.0.0"
+CONFIG_DIR="$HOME/.gemini"
+SKILLS_DIR="$CONFIG_DIR/skills"
+LOG_FILE="$CONFIG_DIR/git-library.log"
+BASE_DIR="/d/Git_library" # Chemin absolu dans l'environnement
+
+# Initialisation
+mkdir -p "$CONFIG_DIR/hooks" "$CONFIG_DIR/agents"
+touch "$LOG_FILE"
+
+# Log logic
+log() { echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"; }
+
+# Sourcing components
+# Note: On utilise des chemins relatifs à BASE_DIR ou absolus
+source "$BASE_DIR/src/policy/engine.sh"
+source "$BASE_DIR/src/core/downloader.sh"
+source "$BASE_DIR/src/agents/registry.sh"
+source "$BASE_DIR/src/wiki/generator.sh"
+source "$BASE_DIR/src/hooks/generic_hook_runner.sh"
+
+# Point d'Entrée
+case "${1:-}" in
+    "---help"|"-h")
+        echo "Usage: git-library <URL_GITHUB> [NOM_SORTIE]"
+        echo "       git-library chat <DOSSIER>     # Discuter avec le code"
+        echo "       git-library test <FICHIER>     # Générer des tests"
+        echo "       git-library deploy <DOSSIER>   # Déployer en staging"
+        echo "       git-library ---version         # Afficher la version"
+        exit 0
+        ;;
+    "---version")
+        echo "git-library v$VERSION"
+        exit 0
+        ;;
+    "chat")
+        shift
+        if [ -f "$BASE_DIR/src/agents/chat.sh" ]; then
+            source "$BASE_DIR/src/agents/chat.sh"
+            chat_with_code "$@"
+        else
+            echo "❌ Erreur : Module Chat non installé."
+        fi
+        ;;
+    "test")
+        shift
+        if [ -f "$BASE_DIR/src/agents/test_gen.sh" ]; then
+            source "$BASE_DIR/src/agents/test_gen.sh"
+            generate_unit_test "$@"
+        else
+            echo "❌ Erreur : Module Test Gen non installé."
+        fi
+        ;;
+    "deploy")
+        shift
+        if [ -f "$BASE_DIR/src/agents/deploy.sh" ]; then
+            source "$BASE_DIR/src/agents/deploy.sh"
+            deploy_to_staging "$@"
+        else
+            echo "❌ Erreur : Module Deploy non installé."
+        fi
+        ;;
+    *)
+        if [[ -n "${1:-}" ]]; then
+            fetch_content "$@"
+        else
+            echo "❌ Erreur : Aucun argument fourni. Utilisez ---help."
+            exit 1
+        fi
+        ;;
+esac
