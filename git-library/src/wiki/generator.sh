@@ -46,7 +46,22 @@ generate_wiki_entry() {
         fi
         echo ""
 
+        # Append surgical data if available
+        if [ -n "${SURGICAL_SYMBOLS:-}" ]; then
+            echo -e "\n## 🩺 Symboles Chirurgicaux"
+            echo -e "\`\`\`text\n$SURGICAL_SYMBOLS\n\`\`\`"
+        fi
+
         echo "## 🤖 Aide Agentique"
         echo "Utilisez 'git-library chat $target' pour poser des questions sur ce code."
     } >> "$wiki_file"
+
+    # Génération du GEMINI.json (AI-Native)
+    local json_path="${target%/}/GEMINI.json"
+    if [ "$type" == "directory" ]; then
+        echo "{\"project\": \"$(basename "$target")\", \"type\": \"$type\", \"skills\": \"${CURRENT_SKILLS:-None}\", \"symbols\": \"$(echo "$SURGICAL_SYMBOLS" | tr '\n' ' ')\", \"dependencies\": \"$(echo "$SURGICAL_DEPS" | tr '\n' ' ')\"}" > "$json_path"
+        echo "🤖 Fichier JSON généré : $json_path"
+    fi
+
+    echo "✅ Documentation générée : $wiki_file"
 }

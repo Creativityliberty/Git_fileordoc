@@ -34,7 +34,7 @@ chat_with_code() {
             local context=$(head -n 50 "$wiki_path" | tr '\n' ' ')
             
             # Appel API via Curl (Structure simplifiée)
-            curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$GEMINI_API_KEY" \
+            local response=$(curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$GEMINI_API_KEY" \
                 -H 'Content-Type: application/json' \
                 -d "{
                     \"contents\": [{
@@ -42,7 +42,16 @@ chat_with_code() {
                             \"text\": \"Context: $context. User Question: $user_query\"
                         }]
                     }]
-                }" | grep -oP '"text":\s*"\K[^"]+' || echo "❌ Erreur API."
+                }")
+            
+            # Tentative d'extraction du texte
+            local text=$(echo "$response" | sed -n 's/.*"text": "\(.*\)".*/\1/p')
+            if [ -n "$text" ]; then
+                echo -e "🤖 Agent (API) : $text"
+            else
+                echo "❌ Erreur API ou format de réponse inconnu."
+                echo "DEBUG - Réponse brute : $response"
+            fi
         else
             echo "🤖 Agent (Sim) : Basé sur le contexte $(export | grep CURRENT_SKILLS || echo 'Standard'), votre question sur '$user_query' semble pertinente."
         fi

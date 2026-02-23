@@ -7,7 +7,7 @@ VERSION="2.0.0"
 CONFIG_DIR="$HOME/.gemini"
 SKILLS_DIR="$CONFIG_DIR/skills"
 LOG_FILE="$CONFIG_DIR/git-library.log"
-BASE_DIR="/d/Git_library" # Chemin absolu dans l'environnement
+BASE_DIR="/d/Git_fileordoc/git-library" # Chemin absolu dans l'environnement
 
 # Initialisation
 mkdir -p "$CONFIG_DIR/hooks" "$CONFIG_DIR/agents"
@@ -22,6 +22,7 @@ source "$BASE_DIR/config/settings.env" 2>/dev/null || log "⚠️ settings.env n
 source "$BASE_DIR/src/policy/engine.sh"
 source "$BASE_DIR/src/core/downloader.sh"
 source "$BASE_DIR/src/agents/registry.sh"
+source "$BASE_DIR/src/surgical/surgeon.sh"
 source "$BASE_DIR/src/wiki/generator.sh"
 source "$BASE_DIR/src/hooks/generic_hook_runner.sh"
 
@@ -66,12 +67,13 @@ case "${1:-}" in
             echo "❌ Erreur : Module Deploy non installé."
         fi
         ;;
+    "surgery")
+        if [ $# -lt 2 ]; then echo "Usage: git-library surgery <path>"; exit 1; fi
+        run_surgery "$2"
+        generate_wiki_entry "$2" "directory"
+        ;;
     *)
-        if [[ -n "${1:-}" ]]; then
-            fetch_content "$@"
-        else
-            echo "❌ Erreur : Aucun argument fourni. Utilisez ---help."
-            exit 1
-        fi
+        # Par défaut, on télécharge
+        fetch_content "$@"
         ;;
 esac

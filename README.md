@@ -6,7 +6,17 @@
 
 * **Fichier unique** : Téléchargement instantané via `curl`.
 * **Dossier spécifique** : Clone uniquement le contenu d'un dossier sans le reste du repo.
-* **Nom personnalisé** : Possibilité de renommer le fichier ou le dossier à la volée.
+* **Nom personnalisé** : Possibilité de renommer le fichier ou le dossier à la volée en ajoutant un deuxième argument.
+
+## Usage
+
+```bash
+# Téléchargement vers le dossier courant
+./git-fileordoc.sh https://github.com/user/repo/tree/main/folder
+
+# Téléchargement vers un dossier spécifique (choix du nom/chemin)
+./git-fileordoc.sh https://github.com/user/repo/tree/main/folder nouveau-nom-dossier
+```
 
 ## Installation & Permission
 
