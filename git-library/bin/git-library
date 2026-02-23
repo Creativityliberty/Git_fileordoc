@@ -34,10 +34,12 @@ source "$BASE_DIR/src/hooks/generic_hook_runner.sh"
 # Point d'Entrée
 case "${1:-}" in
     "---help"|"-h")
-        echo "Usage: git-library <URL_GITHUB> [NOM_SORTIE]"
+        echo "       git-library build <DOSSIER>    # Générer le Wiki & Vault"
+        echo "       git-library teach <DOSSIER>    # Lancer l'Elite Academy"
         echo "       git-library chat <DOSSIER>     # Discuter avec le code"
         echo "       git-library test <FICHIER>     # Générer des tests"
         echo "       git-library deploy <DOSSIER>   # Déployer en staging"
+        echo "       git-library surgery <DOSSIER>  # Analyse chirurgicale"
         echo "       git-library ---version         # Afficher la version"
         exit 0
         ;;
@@ -71,6 +73,11 @@ case "${1:-}" in
         else
             echo "❌ Erreur : Module Deploy non installé."
         fi
+        ;;
+    "build")
+        if [ $# -lt 2 ]; then echo "Usage: git-library build <path>"; exit 1; fi
+        run_surgery "$2"
+        generate_wiki_entry "$2" "directory"
         ;;
     "surgery")
         if [ $# -lt 2 ]; then echo "Usage: git-library surgery <path>"; exit 1; fi

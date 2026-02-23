@@ -53,8 +53,7 @@ def discover_models(api_key):
             data = json.loads(response.read().decode('utf-8'))
             models = [m['name'].split('/')[-1] for m in data.get('models', []) if 'generateContent' in m.get('supportedGenerationMethods', [])]
             return models
-    except Exception as e:
-        print(f"⚠️ Could not list models: {e}")
+    except Exception:
         return []
 
 def call_llm(prompt, api_key):

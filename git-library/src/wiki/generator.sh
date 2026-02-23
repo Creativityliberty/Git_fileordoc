@@ -83,29 +83,32 @@ generate_wiki_entry() {
 EOF
     echo "🤖 Fichier JSON généré : $json_path"
 
-    # --- ARCHIVAGE DANS LE VAULT ---
+    # --- ARCHIVAGE DANS LE VAULT (STRUCTURE 3 PILIERS) ---
     if [ -n "${VAULT_DIR:-}" ]; then
-        local project_name=$(basename "$target")
         local timestamp=$(date +'%Y-%m-%d_%H-%M')
-        local archive_dir="$VAULT_DIR/$project_name/$timestamp"
-        mkdir -p "$archive_dir"
+        local project_name=$(basename "$target")
+        local session_vault="$VAULT_DIR/$project_name/$timestamp"
         
-        cp "$wiki_file" "$archive_dir/GEMINI.md"
-        [ -f "$json_path" ] && cp "$json_path" "$archive_dir/GEMINI.json"
+        # Création des piliers
+        mkdir -p "$session_vault/bridge"   # Pont: Code -> IA
+        mkdir -p "$session_vault/surgeon"  # Chirurgien: Analyse Chirurgicale
+        mkdir -p "$session_vault/academy"  # Academy: Pédagogie
         
-        # Extraction du Mermaid en fichier séparé
-        sed -n '/```mermaid/,/```/p' "$wiki_file" > "$archive_dir/architecture.mmd"
+        # Déplacement/Copie des fichiers vers les bons piliers
+        cp "$wiki_file" "$session_vault/bridge/GEMINI.md"
+        [ -f "$json_path" ] && cp "$json_path" "$session_vault/surgeon/GEMINI.json"
         
-        # Mise à jour de l'INDEX.md du Vault
+        # Mise à jour de l'INDEX.md du Vault (Plus propre)
         local index_file="$VAULT_DIR/INDEX.md"
-        if [ ! -f "$index_file" ]; then
-            echo "# 🏛️ Intelligence Vault Index" > "$index_file"
-        fi
+        [ ! -f "$index_file" ] && echo "# 🏛️ Intelligence Vault Index" > "$index_file"
         if ! grep -q "$project_name" "$index_file"; then
-            echo "- **$project_name** : [Dernière analyse](./$project_name/$timestamp/GEMINI.md)" >> "$index_file"
+            echo "- **$project_name** : [Dernière analyse](./$project_name/$timestamp/bridge/GEMINI.md)" >> "$index_file"
         fi
+
+        echo "🏛️ Session archivée dans le Vault (3 piliers) : $session_vault"
         
-        echo "🏛️ Archivé dans le Vault : $archive_dir"
+        # Export pour le moteur Academy
+        export CURRENT_ACADEMY_DIR="$session_vault/academy"
     fi
 
     echo "✅ Documentation générée : $wiki_file"
