@@ -1,0 +1,10 @@
+templates:
+  forbidden_layer_edge:
+    - "Introduce an interface/port in the source layer and implement it in the target layer (dependency inversion)."
+    - "Move infrastructure concerns behind adapters; keep domain pure."
+  god_file:
+    - "Split this file into smaller modules by responsibility."
+    - "Add tests around current behavior before refactoring."
+  hotspot:
+    - "Reduce coupling: split responsibilities and reduce import fan-out."
+    - "Add architectural tests/lint rules to prevent regression."

@@ -1,0 +1,13 @@
+layers:
+  forbid:
+    - from: domain
+      to: infra
+    - from: domain
+      to: tests
+
+limits:
+  god_file_lines: 800
+  hotspot_risk: 3.0
+
+report:
+  max_items_per_section: 200
