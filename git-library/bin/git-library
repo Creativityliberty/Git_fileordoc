@@ -2,6 +2,9 @@
 # git-library : Agentic Code Intelligence & Downloader
 set -euo pipefail
 
+# --- Environnement & PATH ---
+export PATH="/usr/local/bin:/usr/bin:/bin:/mingw64/bin:/c/Windows/system32:/c/Windows:/c/Program Files/nodejs:/c/Python311:$PATH"
+
 # --- Configuration & Constantes ---
 VERSION="2.0.0"
 CONFIG_DIR="$HOME/.gemini"
@@ -23,6 +26,7 @@ source "$BASE_DIR/config/settings.env" 2>/dev/null || log "⚠️ settings.env n
 source "$BASE_DIR/src/policy/engine.sh"
 source "$BASE_DIR/src/core/downloader.sh"
 source "$BASE_DIR/src/agents/registry.sh"
+source "$BASE_DIR/src/agents/academy.sh"
 source "$BASE_DIR/src/surgical/surgeon.sh"
 source "$BASE_DIR/src/wiki/generator.sh"
 source "$BASE_DIR/src/hooks/generic_hook_runner.sh"
@@ -72,6 +76,23 @@ case "${1:-}" in
         if [ $# -lt 2 ]; then echo "Usage: git-library surgery <path>"; exit 1; fi
         run_surgery "$2"
         generate_wiki_entry "$2" "directory"
+        ;;
+    "teach")
+        if [ $# -lt 2 ]; then echo "Usage: git-library teach <path>"; exit 1; fi
+        # Détection du python fonctionnel (évite les shims Windows vides)
+        PYTHON_BIN=""
+        if python3 --version &> /dev/null; then
+            PYTHON_BIN="python3"
+        elif py -3 --version &> /dev/null; then
+            PYTHON_BIN="py -3"
+        elif python --version &> /dev/null; then
+            PYTHON_BIN="python"
+        else
+            echo "❌ Erreur : Python (ou py launcher) requis pour le mode Academy."
+            exit 1
+        fi
+        
+        $PYTHON_BIN "$BASE_DIR/src/agents/academy.py" "$2" "$VAULT_DIR" "${GEMINI_API_KEY}"
         ;;
     *)
         # Par défaut, on télécharge
